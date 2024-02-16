@@ -1,63 +1,62 @@
-import processing.serial.*;
-Serial myPort;
+import processing.serial.*;  // подключаем библиотеку, для взаимодействия с портами
+Serial myPort;  
 
-String ang="";
+String ang="";              // создаем глобальные переменные типа string для приема данных с Arduino(угол, длина, общие данные)
 String distance="";
 String data="";
 
-int angle, dist;
+int angle, dist;   // создаем глобальные переменные типа int для дальнейших расчетов
 
-void setup() {
-   size (1200, 700); 
-   myPort = new Serial(this,"COM7", 9600);
-   myPort.bufferUntil('.');
-   background(0);
+void setup() {                                
+   size (1200, 700);                         // Устанавливаем размер окна
+   myPort = new Serial(this,"COM3", 9600);   // Инициализируем порт, с которого будем считывать данные
+   myPort.bufferUntil('.');                  // Устанавливаем определенный байт(в данном случае "."), до которого будет происходить буферизация
+   background(0);                            // Устанавливаем цвет фона
 }
-
+     
 void draw() {
-      fill(0,5);
-      noStroke();
+      fill(0,5);                           // Создается первый прямоугольник на экране
+      noStroke();                                                                             
       rect(0, 0, width, height*0.93); 
       
-      noStroke();
+      noStroke();                          // Создается второй прямоугольник на экране
       fill(0,255);
       rect(0,height*0.93,width,height);
       
-      drawRadar(); 
+      drawRadar();                       // Вызываются дальнейшие функции
       drawLine();
       drawObject();
       drawText();
 }
 
-
-void serialEvent (Serial myPort) {
-      data = myPort.readStringUntil('.');
+void serialEvent (Serial myPort) {                            // Происходит считывание данных, полученых с Arduino
+      data = myPort.readStringUntil('.');                     // В переменную data записываются все полученные данные
       data = data.substring(0,data.length()-1);
       
-      int index1 = data.indexOf(",");                                                    
-      ang= data.substring(0, index1);                                                 
-      distance= data.substring(index1+1, data.length());                            
+      int index1 = data.indexOf(",");                         // Переменной index1 присваиваем порядковый номер ","                   
+      ang= data.substring(0, index1);                         // Переменной ang присваиваем значение от начала строки до "," 
+      distance= data.substring(index1+1, data.length());      // Переменной distance присваиваем значение от "," до конца строки         
       
-      angle = int(ang);
+      angle = int(ang);                                       // Преобразуем полученные значения вида strind в значение int
       dist = int(distance);
 }
 
 void drawRadar(){
-    pushMatrix();
+    pushMatrix();                                             
     noFill();
-    stroke(10,255,10);
+    stroke(10,255,10);                                        // Задаем цвет и ширину линий
     strokeWeight(3);
     
-    translate(width/2,height-height*0.06);
+    translate(width/2,height-height*0.06);                    // Задаем величину смещения объектов
     
-    line(-width/2,0,width/2,0);
-    
-    arc(0,0,(width*0.5),(width*0.5),PI,TWO_PI);
-    arc(0,0,(width*0.25),(width*0.25),PI,TWO_PI);
+    line(-width/2,0,width/2,0);                               // Рисуем линию, совпадающую с Ox
+                  
+    arc(0,0,(width*0.25),(width*0.25),PI,TWO_PI);             // Рисуем 4 полукруга
+    arc(0,0,(width*0.5),(width*0.5),PI,TWO_PI); 
     arc(0,0,(width*0.75),(width*0.75),PI,TWO_PI);
     arc(0,0,(width*0.95),(width*0.95),PI,TWO_PI);
     
-    line(0,0,(-width/2)*cos(radians(30)),(-width/2)*sin(radians(30)));
+    line(0,0,(-width/2)*cos(radians(30)),(-width/2)*sin(radians(30)));     // Рисуем 5 линий, с углом наклона 30,60,90,120,150 относительно Ox
     line(0,0,(-width/2)*cos(radians(60)),(-width/2)*sin(radians(60)));
     line(0,0,(-width/2)*cos(radians(90)),(-width/2)*sin(radians(90)));
     line(0,0,(-width/2)*cos(radians(120)),(-width/2)*sin(radians(120)));
@@ -65,7 +64,7 @@ void drawRadar(){
     
     stroke(175,255,175); 
     strokeWeight(1);
-    line(0,0,(-width/2)*cos(radians(15)),(-width/2)*sin(radians(15)));
+    line(0,0,(-width/2)*cos(radians(15)),(-width/2)*sin(radians(15)));     // Рисуем 5 линий, с углом наклона 15,45,75,105,135,165 относительно Ox
     line(0,0,(-width/2)*cos(radians(45)),(-width/2)*sin(radians(45)));
     line(0,0,(-width/2)*cos(radians(75)),(-width/2)*sin(radians(75)));
     line(0,0,(-width/2)*cos(radians(105)),(-width/2)*sin(radians(105)));
@@ -77,13 +76,13 @@ void drawRadar(){
 
 void drawLine(){
   
-    pushMatrix();
+    pushMatrix();                                               
     
-    strokeWeight(9);
-    stroke(0,255,0);
-    translate(width/2,height-height*0.06); 
+    strokeWeight(9);                                                           // Задаем цвет и ширину линии
+    stroke(0,255,0);                                          
+    translate(width/2,height-height*0.06);                                     // Задаем величину смещения объектов
     
-    line(0,0,(width/2)*cos(radians(angle)),(-width/2)*sin(radians(angle)));
+    line(0,0,(width/2)*cos(radians(angle)),(-width/2)*sin(radians(angle)));    //Рисуем линию, которая будет иметь угол наклона angle
 
     popMatrix();
     
@@ -93,17 +92,17 @@ void drawObject(){
   
     pushMatrix();
     
-    strokeWeight(9);
+    strokeWeight(9);                                                            // Задаем цвет и ширину линии
     stroke(255,0,0);
-    translate(width/2,height-height*0.06);
+    translate(width/2,height-height*0.06);                                      // Задаем величину смещения объектов
    
-    float pixleDist = (dist/40.0)*(width/2.0); 
-    float pd=(width/2)-pixleDist;
+    float pixleDist = (dist/40.0)*(width/2.0);                                  // Переменную dist преобразовываем под масштаб радара
+    float pd=(width/2)-pixleDist;                                               // Создаем переменную, показывающую расстояние от конца dist до конда линии радара
     
-    float x=-pixleDist*cos(radians(angle));
+    float x=-pixleDist*cos(radians(angle));                                     //Определяем точку, где был обнаружен объект
     float y=-pixleDist*sin(radians(angle));
     
-    if(dist<=40){                               
+    if(dist<=40){                                                               // Если расстояние меньше 40см, то рисуем красную линию от точки, где был обнаружен объект до конца линии радара
        line(-x,y,-x+(pd*cos(radians(angle))),y-(pd*sin(radians(angle))));
     }
     popMatrix();
@@ -112,30 +111,30 @@ void drawObject(){
 void drawText(){
     pushMatrix();
     
-    fill(100,200,255);
-    textSize(25);
+    fill(100,200,255);                                                          // Задаем параметры экрана
+    textSize(25);                                                               
     
-    text("10cm",(width/2)+(width*0.115),height*0.93);
+    text("10cm",(width/2)+(width*0.115),height*0.93);                          // Текст, показывающий расстояние до объекта на радаре
     text("20cm",(width/2)+(width*0.24),height*0.93);
     text("30cm",(width/2)+(width*0.365),height*0.93);
     text("40cm",(width/2)+(width*0.45),height*0.93);
+      
+    translate(width/2,height-height*0.06);
+    textSize(25);
+   
+    text(" 30°",(width/2)*cos(radians(30)),(-width/2)*sin(radians(30)));        // Текст, показывающий угол на радаре
+    text(" 60°",(width/2)*cos(radians(60)),(-width/2)*sin(radians(60)));
+    text("90°",(width/2)*cos(radians(91)),(-width/2)*sin(radians(90)));
+    text("120°",(width/2)*cos(radians(123)),(-width/2)*sin(radians(118)));
+    text("150°",(width/2)*cos(radians(160)),(-width/2)*sin(radians(150)));
     
     textSize(40);
-    text("Угол :"+angle,width*0.45,height*0.99);
+    text("Угол :"+angle,width*0.45,height*0.99);                                // Угол поворота сервопривода
     
     if(dist<=40) {
-      text("Расстояние :"+dist,width*0.7,height*0.99);
+      text("Расстояние :"+dist,width*0.7,height*0.99);                          // Расстояние до объекта
     }
-      
-   translate(width/2,height-height*0.06);
-   textSize(25);
-   
-   text(" 30°",(width/2)*cos(radians(30)),(-width/2)*sin(radians(30)));
-   text(" 60°",(width/2)*cos(radians(60)),(-width/2)*sin(radians(60)));
-   text("90°",(width/2)*cos(radians(91)),(-width/2)*sin(radians(90)));
-   text("120°",(width/2)*cos(radians(123)),(-width/2)*sin(radians(118)));
-   text("150°",(width/2)*cos(radians(160)),(-width/2)*sin(radians(150)));
     
-   popMatrix();  
+    popMatrix();  
   
 }

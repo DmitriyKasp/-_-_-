@@ -1,55 +1,52 @@
-#include <Servo.h>
+#include <Servo.h>.                         // Подключаем библиотеку для работы с сервоприводом
 
-const int trigPin=12;
-const int echoPin=11;
+ 
+const int trigPin = 13;                     // Создаем переменные для работы
+const int echoPin = 12;
 
 long duration;
 int distance;
 
-Servo s1;
+Servo myServo; 
 
-void setup(){
+void setup() {
+  pinMode(trigPin, OUTPUT);                 // Инициализируем пины для эхолокатора
+  pinMode(echoPin, INPUT); 
   Serial.begin(9600);
-  pinMode(trigPin,OUTPUT);
-  pinMode(echoPin,INPUT);
-
-  s1.attach(10);
+  myServo.attach(10);                       // Инициализируем пин для сервоприводa
+}
+void loop() {
+  for(int i=0;i<=180;i++)                   // Начинаем цикл для перебора значений от 0 до 180
+  { 
+    myServo.write(i);                       // Происходит поворот сервопривода на i-ый градус
+    delay(30);
+    distance = calculateDistance();         // Считываем дистанцию
+    Serial.print(i);                        // Отправляем данные на программу Processing. Отправляемые данные имеют вид ["angle" "," "distance" "."]
+    Serial.print(","); 
+    Serial.print(distance); 
+    Serial.print("."); 
+  } 
+  for(int i=180;i>=0;i--)                   // Тоже самое, только перебор значений от 180 до 0
+  {
+    myServo.write(i);
+    delay(30);
+    distance = calculateDistance();
+    Serial.print(i);
+    Serial.print(",");
+    Serial.print(distance);
+    Serial.print(".");
+  }
 }
 
-void loop(){
-    for(int i=15;i<=165;i++){ //вращаем серводвигатель от 15 до 165 градусов
-      s1.write(i);
-      delay(30);
-      distance = calDist();
-  
-      Serial.print(i);                      // Отправляем градусы в порт
-      Serial.print(","); // Разделяем данные для processing программы
-      Serial.print(distance);               // Отправляем расстояние в порт
-      Serial.print("."); // Разделяем данные для processing программы
-    }
+int calculateDistance(){                    // Считывание дистанции
 
-    for(int i=165;i>15;i--){   // Тоже самое в обратном направлении
-      s1.write(i);
-      delay(30);
-      distance = calDist();
-      Serial.print(i);
-      Serial.print(",");
-      Serial.print(distance);
-      Serial.print(".");
-    }
-}
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
 
-int calDist(){
-   digitalWrite(trigPin, LOW);
-   delayMicroseconds(2);
-                            // Отправляем сигнал с датчика расстония 
-   digitalWrite(trigPin, HIGH);
-   delayMicroseconds(10);
-   digitalWrite(trigPin, LOW); 
-                                        // Считываем показания датчика
-   duration = pulseIn(echoPin, HIGH);
-                                        // Рассчитываем сантиметры
-   distance = duration*0.034/2;
-
-   return distance;
+  digitalWrite(trigPin, HIGH);             // Даем питание на пин trig (в это время эхолокатор отправляет сигнал)
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);              // Через 10 мс отключаем пин trig
+  duration = pulseIn(echoPin, HIGH);       // Считываем показания эхолокатора с помощью пина echo
+  distance= duration*0.034/2;              // Переводим значение в сантиметры
+  return distance;
 }
